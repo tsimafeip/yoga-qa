@@ -8,15 +8,15 @@ The data was scraped from [the questions database](https://db.chgk.info/tour/SVO
 
 
 ## Database Schema
-ID
-Topic
-QuestionValue
-Question
-Answer
-Optional. AcceptedAnswers
-Optional. Author
-Optional. Source
-Optional. Link
-Optional. Tournament
-Optional. EstimatedComplexity - from 1 to 3.
-Optional. Year
+- ID
+- Topic
+- QuestionValue
+- Question
+- Answer
+- Optional. AcceptedAnswers
+- Optional. Author
+- Optional. Source
+- Optional. Link
+- Optional. Tournament
+- Optional. EstimatedComplexity - from 1 to 3.
+- Optional. Year
