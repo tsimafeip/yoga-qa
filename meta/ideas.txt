@@ -1,0 +1,42 @@
+
+Notes
+1. Capitalization (form) helps to guide final generation.
+2. Adding information from source link can help extract answer.
+3. Matching extra answers to improve quality metrics
+4. Jointly train QA and question generation system.
+
+
+
+Comments from Simon
+
+General Ideas
+1. Get data from YouTube: Geopardy, YourGame
+2. Add source links as context
+3. Do splits by complexity
+4. Check how machine-human evaluation works
+
+Adjust proposal
+1. Add data example
+2. Add notion joint training
+
+Seminar Project
+0. Improve parsing -
+    "" just confuse me - REMOVE THEM
+1. Train-dev-test split on public dataset, do mt5 evaluation.
+2. Count sources, especially links.
+Experiments
+    1. Simple fine-tuning with the one answer
+    2. Concat topic to the question
+    3. Taking extra answers for training
+    4. Split by year
+3. Write paper
+
+
+Thesis
+0. Add some modelling on top of Rulang
+1. Try joinly generate QA
+2. Ask annotators
+Extract 200 examples, check reliability
+
+    Josef+Simon / Gunter Neumann from DFKI
+

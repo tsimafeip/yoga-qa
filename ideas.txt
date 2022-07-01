@@ -1,5 +1,0 @@
-1. Capitalization (form) helps to guide final generation.
-2. Adding information from source link can help extract answer.
-3. Matching extra answers to improve quality metrics
-4. "" just confuse me
-5. Jointly train QA and question generation system.
