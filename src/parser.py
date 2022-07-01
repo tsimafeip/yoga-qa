@@ -1,4 +1,4 @@
-from typing import List, Tuple, Iterable
+from typing import List, Tuple, Iterable, Dict, Any
 
 import pandas as pd
 from dateutil import parser
@@ -29,6 +29,116 @@ def skip_empty_lines_between_blocks(lines: List[str], i: int) -> int:
     return i
 
 
+def _extract_extra_answers(answer: str) -> Tuple[str, List[str], List[str]]:
+    extra_positive_keyword = 'зачет: '
+    hard_negative_keyword = 'незачет:'
+    extra_pos_start_i = answer.find(extra_positive_keyword)
+    hard_neg_start_i = answer.find(hard_negative_keyword)
+
+    extra_positives = []
+    hard_negatives = []
+
+    if extra_pos_start_i != -1 and hard_neg_start_i == -1:
+        extra_answer = answer[extra_pos_start_i + len(extra_positive_keyword):]
+        extra_answer = extra_answer.replace('так уж и быть, ', "").replace('так уж и быть', "")
+        answer = answer[:extra_pos_start_i - 1]
+        extra_positives = extra_answer.split(';') if ';' in extra_answer else extra_answer.split(',')
+    elif hard_neg_start_i != -1:
+        hard_negatives = answer[hard_neg_start_i + len(hard_negative_keyword) + 1:].split(',')
+        answer = answer[:hard_neg_start_i]
+        if extra_positive_keyword in answer:
+            if answer.endswith('; '):
+                answer = answer[:-2]
+            answer, extra_positives, _ = _extract_extra_answers(answer)
+
+    return answer, extra_positives, hard_negatives
+
+
+def set_question_field(field_name: str, field_value: str, question_value: int,
+                       topic_questions: Dict[int, YogaQuestion], df: Dict[str, Any]):
+    setattr(topic_questions[question_value], field_name, field_value)
+    df[field_name][question_value - 1] = field_value
+
+
+def extract_and_remove_brackets_content(answer: str, opening_bracket: str) -> Tuple[str, List[str], List[str]]:
+    # TODO: improve extracting extra answers from patterns like this: '[момоти] тамба [одиннадцатый]'
+    assert opening_bracket in {'{', '(', '['}
+
+    opening_to_closing_bracket = {'{': '}', '(': ')', '[': ']'}
+
+    expanded_answer_start = answer.find(opening_bracket)
+    expanded_answer_end = 1 + answer.find(opening_to_closing_bracket[opening_bracket])
+
+    expanded_answer_word = answer[expanded_answer_start + 1:expanded_answer_end - 1]
+    _, local_extra_positives, local_hard_negatives = _extract_extra_answers(expanded_answer_word)
+    answer = answer[:expanded_answer_start] + answer[expanded_answer_end + 1:]
+    return answer, local_extra_positives, local_hard_negatives
+
+
+def process_answer(answer: str) -> Tuple[str, List[str], List[str], str]:
+    answer = answer.replace('"', "").replace("'", "").replace('.', "").lower()
+    extra_positives = []
+    hard_negatives = []
+    answer_prefix = extracted_comment = ""
+
+    if answer.startswith('['):
+        '''
+        Fix:
+        '[момоти] тамба [одиннадцатый]'
+        ''[площадь] рынок {зачет: рынковая [площадь]}'
+        '''
+        extra_end = answer.find("]")
+        answer_prefix = answer[1:extra_end]
+        answer = answer[extra_end + 2:]
+
+    if '{' in answer:
+        answer, local_extra_positives, local_hard_negatives = \
+            extract_and_remove_brackets_content(answer, opening_bracket='{')
+        extra_positives.extend(local_extra_positives)
+        hard_negatives.extend(local_hard_negatives)
+
+    while '[' in answer:
+        answer, local_extra_positives, local_hard_negatives = \
+            extract_and_remove_brackets_content(answer, opening_bracket='[')
+        extra_positives.extend(local_extra_positives)
+        hard_negatives.extend(local_hard_negatives)
+
+    answer, extracted_extra_pos, extracted_hard_neg = _extract_extra_answers(answer)
+    extra_positives.extend(extracted_extra_pos)
+    hard_negatives.extend(extracted_hard_neg)
+
+    if '(' in answer:
+        comment_start = answer.find("(")
+        comment_end = answer.rfind(")")
+        comment = answer[comment_start + 1:comment_end]
+        # +1 to skip extra space
+        if comment_end + 1 == len(answer):
+            answer = answer[:comment_start - 1]
+            extracted_comment = comment
+        elif comment_start == 0:
+            answer = answer[comment_end + 2:]
+            extra_answer = comment + ' ' + answer
+            extra_positives.append(extra_answer)
+        else:
+            for alternative_start in comment.split(','):
+                extra_answer = alternative_start + ' ' + answer[comment_end + 2:]
+                extra_positives.append(extra_answer)
+            answer = answer[:comment_start - 1] + ' ' + answer[comment_end + 2:]
+
+    answer = answer.strip()
+
+    if answer_prefix:
+        extra_answer = answer_prefix + ' ' + answer
+        extra_positives.append(extra_answer)
+
+    answer = answer\
+        .replace('(', "").replace(')', "")\
+        .replace('[', "").replace(']', "")\
+        .replace('{', "").replace('}', "")
+
+    return answer, extra_positives, hard_negatives, extracted_comment
+
+
 def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, source_url: str,
                        tournament_editor: str, tournament_author: str) \
         -> Tuple[int, Iterable[YogaQuestion], pd.DataFrame]:
@@ -45,7 +155,8 @@ def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, sou
         'question_value': list(range(1, 6)),
         'question_text': [""] * 5,
         'answer': [""] * 5,
-        'extra_answers': [""] * 5,
+        'extra_positives': [""] * 5,
+        'hard_negatives': [""] * 5,
         'comment': [""] * 5,
         'source': [""] * 5,
         'author': [""] * 5,
@@ -63,8 +174,8 @@ def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, sou
     # extract texts
     for question_value in range(1, 6):
         question_text, i = extract_question_field(lines, i, question_value)
-        topic_questions[question_value].question_text = question_text
-        questions_for_df['question_text'][question_value - 1] = question_text
+        set_question_field(field_name='question_text', field_value=question_text, question_value=question_value,
+                           topic_questions=topic_questions, df=questions_for_df)
 
     i = skip_empty_lines_between_blocks(lines, i)
     assert lines[i].strip() == 'Ответ:'
@@ -72,20 +183,18 @@ def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, sou
     # extract answers
     for question_value in range(1, 6):
         answer, i = extract_question_field(lines, i, question_value)
+        answer, extra_positives, hard_negatives, extracted_comment = process_answer(answer)
 
-        # TODO: regex for extracting extra answers by pattern {зачет: EXTRA_ANSWER}
-        # possibly, multiple extra answers, like {зачет: Голландия; Нидерланды}
+        set_question_field(field_name='answer', field_value=answer, question_value=question_value,
+                           topic_questions=topic_questions, df=questions_for_df)
 
-        # TODO: extract comment from brackets (pattern: (...comment...) ) if it's present
+        extra_positives_str = ";".join([process_answer(pos)[0] for pos in extra_positives if len(pos.split()) <= 5])
+        set_question_field(field_name='extra_positives', field_value=extra_positives_str, question_value=question_value,
+                           topic_questions=topic_questions, df=questions_for_df)
 
-        # TODO: handle [] brackets as extra answer,
-        # probably, including such complex patterns as [Шоколадный] [американский] лось.
-
-        if answer.endswith('.'):
-            answer = answer[:-1]
-
-        topic_questions[question_value].answer = answer
-        questions_for_df['answer'][question_value - 1] = answer
+        hard_negatives_str = ";".join([process_answer(neg)[0] for neg in hard_negatives if len(neg.split()) <= 5])
+        set_question_field(field_name='hard_negatives', field_value=hard_negatives_str, question_value=question_value,
+                           topic_questions=topic_questions, df=questions_for_df)
 
     i = skip_empty_lines_between_blocks(lines, i)
     if i < len(lines) and lines[i].startswith('Комментарий:'):
@@ -93,8 +202,8 @@ def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, sou
         # extract comments
         for question_value in range(1, 6):
             comment, i = extract_question_field(lines, i, question_value)
-            topic_questions[question_value].comment = comment
-            questions_for_df['comment'][question_value - 1] = comment
+            set_question_field(field_name='comment', field_value=comment, question_value=question_value,
+                               topic_questions=topic_questions, df=questions_for_df)
         i += 1
 
     if i < len(lines) and lines[i].startswith('Источник:'):
@@ -102,8 +211,8 @@ def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, sou
         # extract sources
         for question_value in range(1, 6):
             source, i = extract_question_field(lines, i, question_value)
-            topic_questions[question_value].source = source
-            questions_for_df['source'][question_value - 1] = source
+            set_question_field(field_name='source', field_value=source, question_value=question_value,
+                               topic_questions=topic_questions, df=questions_for_df)
 
         i += 1
 
@@ -118,8 +227,8 @@ def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, sou
         else:
             for question_value in range(1, 6):
                 author, i = extract_question_field(lines, i, question_value)
-                topic_questions[question_value].author = author
-                questions_for_df['author'][question_value - 1] = author
+                set_question_field(field_name='author', field_value=author, question_value=question_value,
+                                   topic_questions=topic_questions, df=questions_for_df)
     else:
         single_author = True
         if tournament_author:
@@ -129,14 +238,14 @@ def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, sou
 
     if single_author:
         for question_value in range(1, 6):
-            topic_questions[question_value].author = single_author_name
-            questions_for_df['author'][question_value - 1] = single_author_name
+            set_question_field(field_name='author', field_value=single_author_name, question_value=question_value,
+                               topic_questions=topic_questions, df=questions_for_df)
 
     df = pd.DataFrame(
         questions_for_df,
         columns=[
-            'topic_name', 'question_value', 'question_text', 'answer', 'extra_answers', 'comment', 'source', 'author',
-            'tournament', 'date', 'source_url'
+            'topic_name', 'question_value', 'question_text', 'answer', 'extra_positives', 'hard_negatives',
+            'comment', 'source', 'author', 'tournament', 'date', 'source_url',
         ],
     )
 

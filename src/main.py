@@ -1,8 +1,8 @@
 import pandas as pd
 from tqdm import tqdm
 
-from src.parser import parse_local_txt_page
-from src.scraper import collect_page_links, extract_txt_page_links, download_data
+from parser import parse_local_txt_page
+from scraper import collect_page_links, extract_txt_page_links, download_data
 
 if __name__ == '__main__':
     page_links = collect_page_links()
