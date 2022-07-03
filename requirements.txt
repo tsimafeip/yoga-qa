@@ -1,1 +1,6 @@
-newspaper3k
+tqdm
+beautifulsoup4
+requests
+numpy
+pandas
+python-dateutil
