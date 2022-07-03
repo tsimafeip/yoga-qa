@@ -10,4 +10,4 @@ The data was scraped from [the questions database](https://db.chgk.info/tour/SVO
 
 ## Database Schema
 Required fields: topic_name, question_value, question_text, answer.<br>
-Optional fields: extra_answers, comment, source, author, tournament, date, source_url.
+Optional fields: extra_positives, hard_negatives, comment, source, author, tournament, date, source_url.
