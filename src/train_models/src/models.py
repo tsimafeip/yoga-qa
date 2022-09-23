@@ -7,7 +7,7 @@ from allennlp.data import Instance
 from allennlp.predictors import Predictor
 
 
-@Predictor.register('seq2seq_predictor')
+@Predictor.register('yoga_predictor')
 class Seq2SeqPredictor(Predictor):
     def predict(self, source_tokens: str) -> JsonDict:
         predicted_json_dict: JsonDict = self.predict_json({"source_tokens": source_tokens})
