@@ -6,10 +6,14 @@ from allennlp.common import JsonDict
 from allennlp.data import Instance
 from allennlp.predictors import Predictor
 
+
 @Predictor.register('seq2seq_predictor')
 class Seq2SeqPredictor(Predictor):
     def predict(self, source_tokens: str) -> JsonDict:
-        return self.predict_json({"source_tokens": source_tokens})
+        predicted_json_dict: JsonDict = self.predict_json({"source_tokens": source_tokens})
+        predicted_json_dict["source_tokens"] = source_tokens
+        predicted_json_dict["predicted_text"] = predicted_json_dict["predicted_text"].encode().decode()
+        return predicted_json_dict
 
     def _json_to_instance(self, json_dict: JsonDict) -> Instance:
         sentence = json_dict["source_tokens"]
