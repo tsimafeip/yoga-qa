@@ -6,7 +6,7 @@ lr=$3
 
 seed=$4
 
-data_prefix=$5
+dataset_name=$5
 
 config=$6
 
@@ -23,13 +23,13 @@ then
   params_str=$params_str'_multigpu'
 fi
 
-model_name=$module_name'_'$data_prefix'_'$params_str
+model_name=$module_name'_'$dataset_name'_'$params_str
 
 archive_dirname=$root_archive_dir'/'$model_name
 
-train_data_path=$data_prefix'train.tsv'
-validation_data_path=$data_prefix'dev.tsv'
-test_data_path=$data_prefix'test.tsv'
+train_data_path='data/'$dataset_name'/yoga_train.tsv'
+validation_data_path='data/'$dataset_name'/yoga_dev.tsv'
+test_data_path='data/'$dataset_name'/yoga_test.tsv'
 
 allennlp train \
             $config \
