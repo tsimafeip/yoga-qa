@@ -6,9 +6,9 @@ lr=$3
 
 seed=$4
 
-config=$5
+data_prefix=$5
 
-data_prefix=$6
+config=$6
 
 accum_steps='8'
 
@@ -27,9 +27,9 @@ model_name=$module_name'_'$data_prefix'_'$params_str
 
 archive_dirname=$root_archive_dir'/'$model_name
 
-train_data_path=$data_prefix'_train.tsv'
-validation_data_path=$data_prefix'_dev.tsv'
-test_data_path=$data_prefix'_test.tsv'
+train_data_path=$data_prefix'train.tsv'
+validation_data_path=$data_prefix'dev.tsv'
+test_data_path=$data_prefix'test.tsv'
 
 allennlp train \
             $config \
