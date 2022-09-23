@@ -15,7 +15,7 @@ First, install required packages by this command:
 
 ### How to train model
 
-`bash allen_train.sh 1 16 0.0001 42 configs/mT5.jsonnet`
+`bash allen_train.sh 1 16 0.0001 42 'data/question_to_answer/yoga' configs/mT5.jsonnet`
 
 ### Repository Structure
     - data - YoGa QA source and processed data

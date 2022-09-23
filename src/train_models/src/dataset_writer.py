@@ -4,27 +4,26 @@ from typing import List
 
 import pandas as pd
 
+TOPIC_COL_NAME: str = 'topic_name'
 QUESTION_TEXT_COL_NAME: str = 'question_text'
 QUESTION_ANSWER_COL_NAME: str = 'answer'
 TOURNAMENT_COL_NAME: str = 'tournament'
 
-CSV_PATH: str = '../data/yoga_questions.csv'
-TSB_PATH: str = '../data/yoga_questions.tsv'
+SEP_SYMBOL = "<SEP>"
+DATA_FOLDER_PATH: str = '../data/'
+YOGA_FILE_PREFIX: str = "yoga_"
+SOURCE_CSV_FILENAME: str = f'{YOGA_FILE_PREFIX}questions.csv'
+TSV_FILENAME: str = f'{YOGA_FILE_PREFIX}questions.tsv'
 
-PATTERN_TOURNAMENTS_PATH: str = '../data/tournaments_{}.txt'
-PATTERN_DATA_PATH: str = '../data/yoga_{}.tsv'
+QUESTION_TO_ANSWER_FOLDER_NAME = "question_to_answer"
+TOPIC_AND_QUESTION_TO_ANSWER_FOLDER_NAME = "topic_and_question_to_answer"
+
+PATTERN_TOURNAMENTS_FILENAME: str = 'tournaments_{}.txt'
+PATTERN_DATA_FILENAME: str = 'yoga_{}.tsv'
 DATA_SPLITS: List[str] = ['train', 'dev', 'test']
 
 
-def write_tsv(target_filepath: str, df: pd.DataFrame):
-    with open(target_filepath, 'w') as f:
-        question_answer_pairs = df[[QUESTION_TEXT_COL_NAME, 'answer']]
-        for i in range(len(df)):
-            row = question_answer_pairs.iloc[i, :]
-            f.write(f"{row[QUESTION_TEXT_COL_NAME]}\t{row[QUESTION_ANSWER_COL_NAME]}\n")
-
-
-def split_tournaments(df: pd.DataFrame):
+def split_tournaments(df: pd.DataFrame, dataset_folder: str = QUESTION_TO_ANSWER_FOLDER_NAME):
     # 62 tournaments - train data
     # 8 tournaments - test data
     # 8 tournaments - dev data
@@ -34,18 +33,10 @@ def split_tournaments(df: pd.DataFrame):
     test_tournaments = tournaments[70:]
 
     for split_name, split_tours in zip(DATA_SPLITS, [train_tournaments, dev_tournaments, test_tournaments]):
-        with open(PATTERN_TOURNAMENTS_PATH.format(split_name), 'w') as f:
+        filename = PATTERN_TOURNAMENTS_FILENAME.format(split_name)
+        filepath = os.path.join(DATA_FOLDER_PATH, dataset_folder, filename)
+        with open(filepath, 'w') as f:
             f.writelines([l + '\n' for l in split_tours])
-
-
-def split_data(df: pd.DataFrame):
-    for split_name in DATA_SPLITS:
-        with open(PATTERN_TOURNAMENTS_PATH.format(split_name)) as f:
-            tournaments = {l.strip() for l in f.readlines()}
-            write_tsv(
-                target_filepath=PATTERN_DATA_PATH.format(split_name),
-                df=df[df[TOURNAMENT_COL_NAME].isin(tournaments)],
-            )
 
 
 def convert_tsv_test_files_to_json(file_prefix: str, test_postfix: str = 'test'):
@@ -61,14 +52,84 @@ def convert_tsv_test_files_to_json(file_prefix: str, test_postfix: str = 'test')
             out_f.write(json_entry + '\n')
 
 
+def write_question_to_answer_tsv(target_filename: str, df: pd.DataFrame):
+    target_filepath: str = os.path.join(DATA_FOLDER_PATH, QUESTION_TO_ANSWER_FOLDER_NAME, target_filename)
+    with open(target_filepath, 'w') as f:
+        for i in range(len(df)):
+            row = df.iloc[i, :]
+            f.write(f"{row[QUESTION_TEXT_COL_NAME]}\t{row[QUESTION_ANSWER_COL_NAME]}\n")
+
+
+def split_question_to_answer_data(df: pd.DataFrame):
+    for split_name in DATA_SPLITS:
+        tournaments_filename = PATTERN_TOURNAMENTS_FILENAME.format(split_name)
+        tournaments_filepath = os.path.join(DATA_FOLDER_PATH, tournaments_filename)
+        with open(tournaments_filepath) as f:
+            tournaments = {l.strip() for l in f.readlines()}
+            write_question_to_answer_tsv(
+                target_filename=PATTERN_DATA_FILENAME.format(split_name),
+                df=df[df[TOURNAMENT_COL_NAME].isin(tournaments)],
+            )
+
+
+def write_question_to_answer(df: pd.DataFrame):
+    write_question_to_answer_tsv(target_filename=TSV_FILENAME, df=df)
+    split_question_to_answer_data(df)
+    convert_tsv_test_files_to_json(
+        file_prefix=os.path.join(
+            DATA_FOLDER_PATH,
+            QUESTION_TO_ANSWER_FOLDER_NAME,
+            YOGA_FILE_PREFIX,
+        ))
+
+def write_tsv(target_filename: str, target_df: pd.DataFrame, dataset_folder: str):
+    target_filepath: str = os.path.join(
+        DATA_FOLDER_PATH,
+        dataset_folder,
+        target_filename,
+    )
+    target_df.to_csv(target_filepath, sep='\t', index=False, header=False)
+
+def write_topic_and_question_to_answer_tsv(target_filename: str, df: pd.DataFrame):
+    target_filepath: str = os.path.join(
+        DATA_FOLDER_PATH,
+        TOPIC_AND_QUESTION_TO_ANSWER_FOLDER_NAME,
+        target_filename,
+    )
+    with open(target_filepath, 'w') as f:
+        for i in range(len(df)):
+            row = df.iloc[i, :]
+            f.write(f"{row[TOPIC_COL_NAME]} {SEP_SYMBOL} {row[QUESTION_TEXT_COL_NAME]}\t{row[QUESTION_ANSWER_COL_NAME]}\n")
+
+def split_topic_and_question_to_answer_data(df: pd.DataFrame):
+    for split_name in DATA_SPLITS:
+        tournaments_filename = PATTERN_TOURNAMENTS_FILENAME.format(split_name)
+        tournaments_filepath = os.path.join(DATA_FOLDER_PATH, tournaments_filename)
+        with open(tournaments_filepath) as f:
+            tournaments = {l.strip() for l in f.readlines()}
+            write_topic_and_question_to_answer_tsv(
+                target_filename=PATTERN_DATA_FILENAME.format(split_name),
+                df=df[df[TOURNAMENT_COL_NAME].isin(tournaments)],
+            )
+
+def write_topic_and_question_to_answer(df: pd.DataFrame):
+    # write_tsv(target_filename=TSV_FILENAME, target_df=df, dataset_folder=TOPIC_AND_QUESTION_TO_ANSWER_FOLDER_NAME)
+    split_topic_and_question_to_answer_data(df)
+    convert_tsv_test_files_to_json(
+        file_prefix=os.path.join(
+            DATA_FOLDER_PATH,
+            TOPIC_AND_QUESTION_TO_ANSWER_FOLDER_NAME,
+            YOGA_FILE_PREFIX,
+        ))
+
+
 if __name__ == "__main__":
-    df = pd.read_csv(CSV_PATH)
+    df = pd.read_csv(os.path.join(DATA_FOLDER_PATH, SOURCE_CSV_FILENAME))
 
     print(f"Col Names: {df.columns.values}")
     print(f"Dataset Size: {len(df)}")
     print(f"Tournaments Number: {len(set(df[TOURNAMENT_COL_NAME]))}")
-
-    # write_tsv(TSV_PATH, df=df)
     # split_tournaments(df)
-    # split_data(df)
-    convert_tsv_test_files_to_json(file_prefix=os.path.join("..", "data", "yoga_"))
+    write_question_to_answer(df)
+
+    write_topic_and_question_to_answer(df)

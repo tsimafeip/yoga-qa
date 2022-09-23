@@ -8,26 +8,28 @@ seed=$4
 
 config=$5
 
+data_prefix=$6
+
 accum_steps='8'
 
 module_name='mt5'
 
 root_archive_dir='archive'
 
-params_str=$lr'_batch'$batch_size'_accum'$accum_steps'_seed'$seed$seed$seed
+params_str=$lr'_batch'$batch_size'_seed'$seed
 
 if [ ${#cuda} != 1 ]
 then
   params_str=$params_str'_multigpu'
 fi
 
-model_name=$module_name'_'$params_str
+model_name=$module_name'_'$data_prefix'_'$params_str
 
 archive_dirname=$root_archive_dir'/'$model_name
 
-train_data_path='data/yoga_train.tsv'
-validation_data_path='data/yoga_dev.tsv'
-test_data_path='data/yoga_test.tsv'
+train_data_path=$data_prefix'_train.tsv'
+validation_data_path=$data_prefix'_dev.tsv'
+test_data_path=$data_prefix'_test.tsv'
 
 allennlp train \
             $config \
