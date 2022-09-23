@@ -20,13 +20,13 @@ Adjust proposal
 2. Add notion joint training
 
 Seminar Project
-0. Improve parsing -
-    "" just confuse me - REMOVE THEM
+0. Improve parsing
 1. Train-dev-test split on public dataset, do mt5 evaluation.
 2. Count sources, especially links.
 Experiments
     1. Simple fine-tuning with the one answer
     2. Concat topic to the question
+    3. Add source info from links.
     3. Taking extra answers for training
     4. Split by year
 3. Write paper

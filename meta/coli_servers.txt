@@ -1,0 +1,45 @@
+Connect:
+	ssh -l tprakap -t login.coli.uni-saarland.de ssh tony-1
+	source /home/CE/tprakap/miniconda3/bin/activate && conda info --envs
+
+	cd /local/tprakap/yoga-qa
+
+Local commands
+	source /Users/tsimafeip/pythonProject/pythonProject/venv_37/bin/activate
+
+
+Screen Commands:
+	List Active Sessions: screen -ls
+	Create named session: screen -S SESSION_NAME
+	Connect to named session: screen -r SESSION_NAME
+	detach from session: CTRL+A+D
+	kill screen: screen -XS <session-id> quit
+	kill all screens: screen -ls | grep Detached | cut -d. -f1 | awk '{print $1}' | xargs kill
+
+
+Train
+	bash allen_train.sh 1 16 0.0001 42 configs/mT5.jsonnet
+
+
+
+Predict
+	bash predict.sh archive/mt5_0.0001_batch16_accum8_seed424242/model.tar.gz data/yoga_test.jsonl yoga_test_predictions.txt
+	
+
+
+Evaluation:
+	exact match
+	https://github.com/jgroschwitz/MultisetFScore
+
+Git
+	git config --global credential.helper 'cache --timeout=36000'
+ 	git rm --cached -r .idea
+	git reset --hard upstream/master
+	git clone https://github.com/tsimafeip/yoga-qa.git
+
+AllenNLP
+	https://docs.allennlp.org/models/main/models/generation/models/t5/
+
+Coli Servers info
+	https://wiki.coli.uni-saarland.de/wiki/index.php?title=User_Doc#Printing.2C_Compute_Cluster_and_other_Services
+
