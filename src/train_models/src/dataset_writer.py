@@ -19,7 +19,7 @@ SOURCE_CSV_FILENAME: str = f'{YOGA_FILE_PREFIX}questions.csv'
 TSV_FILENAME: str = f'{YOGA_FILE_PREFIX}questions.tsv'
 
 QUESTION_TO_ANSWER_FOLDER_NAME = "question_to_answer"
-TOPIC_AND_QUESTION_TO_ANSWER_FOLDER_NAME = "topic_and_question_to_answer"
+TOPIC_AND_QUESTION_TO_ANSWER_FOLDER_NAME = "topic_and_question_to_answer_with_sep"
 
 PATTERN_TOURNAMENTS_FILENAME: str = 'tournaments_{}.txt'
 PATTERN_DATA_FILENAME: str = 'yoga_{}.tsv'
@@ -142,13 +142,13 @@ if __name__ == "__main__":
     #     target_filepath='../predictions_decoded.txt'
     # )
     # decode_predictions_file_to_csv(
-    #     source_filepath='../data/question_to_answer/yoga_test.jsonl',
-    #     pred_filepath='../full_yoga_test_predictions.txt',
+    #     source_filepath='../data/topic_and_question_to_answer_with_sep/yoga_test.jsonl',
+    #     pred_filepath='../topic_and_question_yoga_test_predictions.txt',
     #     target_filepath='../predictions_decoded.csv'
     # )
     df = pd.read_csv('../predictions_decoded.csv')
     sorted_df = df.sort_values(by="predicted_log_probs", ascending=False)
-    #sorted_df.to_csv('../predictions_decoded_sorted.csv', index=False)
+    sorted_df.to_csv('../predictions_decoded_sorted.csv', index=False)
     # sorted_df = pd.read_csv('../predictions_decoded_sorted.csv', index_col=False)
     # print(sorted_df.columns)
     #
@@ -161,13 +161,5 @@ if __name__ == "__main__":
     print(unique_answers.most_common())
     print(correct_answers_df)
     print(len(unique_answers))
-
-    # for series in sorted_df.iteritems():
-    #     print(series, type(series), len(series))
-    #     break
-        #line = dict(series)
-        # if line['question'] and line['gold_answer'] == line['predicted_answer']:
-        #     exact_match += 1
-        #     print(line)
 
 
