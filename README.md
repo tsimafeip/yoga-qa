@@ -1,4 +1,6 @@
 # YogaQA
+!NB: this repository is still under construction. I will update README and reorganise folders once I finish active phase of development.
+
 Trivia-like QA dataset (in Russian) + neural models to solve this task.
 For more detailed description, please, read [the project proposal](meta/Prakapenka_YogaQA.pdf).
 
