@@ -19,7 +19,7 @@ SOURCE_CSV_FILENAME: str = f'{YOGA_FILE_PREFIX}questions.csv'
 TSV_FILENAME: str = f'{YOGA_FILE_PREFIX}questions.tsv'
 
 QUESTION_TO_ANSWER_FOLDER_NAME = "question_to_answer"
-TOPIC_AND_QUESTION_TO_ANSWER_FOLDER_NAME = "topic_and_question_to_answer_with_sep"
+TOPIC_AND_QUESTION_TO_ANSWER_FOLDER_NAME = "topic_and_question_to_answer"
 
 PATTERN_TOURNAMENTS_FILENAME: str = 'tournaments_{}.txt'
 PATTERN_DATA_FILENAME: str = 'yoga_{}.tsv'
@@ -85,6 +85,7 @@ def write_question_to_answer(df: pd.DataFrame):
             YOGA_FILE_PREFIX,
         ))
 
+
 def write_tsv(target_filename: str, target_df: pd.DataFrame, dataset_folder: str):
     target_filepath: str = os.path.join(
         DATA_FOLDER_PATH,
@@ -93,16 +94,21 @@ def write_tsv(target_filename: str, target_df: pd.DataFrame, dataset_folder: str
     )
     target_df.to_csv(target_filepath, sep='\t', index=False, header=False)
 
+
 def write_topic_and_question_to_answer_tsv(target_filename: str, df: pd.DataFrame):
-    target_filepath: str = os.path.join(
+    target_folder: str = os.path.join(
         DATA_FOLDER_PATH,
-        TOPIC_AND_QUESTION_TO_ANSWER_FOLDER_NAME,
-        target_filename,
-    )
-    with open(target_filepath, 'w') as f:
+        TOPIC_AND_QUESTION_TO_ANSWER_FOLDER_NAME)
+
+    if not os.path.exists(target_folder):
+        os.mkdir(target_folder)
+
+    with open(os.path.join(target_folder, target_filename), 'w') as f:
         for i in range(len(df)):
             row = df.iloc[i, :]
-            f.write(f"{row[TOPIC_COL_NAME]} {SEP_SYMBOL} {row[QUESTION_TEXT_COL_NAME]}\t{row[QUESTION_ANSWER_COL_NAME]}\n")
+            # f.write(f"{row[TOPIC_COL_NAME]} {SEP_SYMBOL} {row[QUESTION_TEXT_COL_NAME]}\t{row[QUESTION_ANSWER_COL_NAME]}\n")
+            f.write(f"{row[TOPIC_COL_NAME]}. {row[QUESTION_TEXT_COL_NAME]}\t{row[QUESTION_ANSWER_COL_NAME]}\n")
+
 
 def split_topic_and_question_to_answer_data(df: pd.DataFrame):
     for split_name in DATA_SPLITS:
@@ -115,8 +121,10 @@ def split_topic_and_question_to_answer_data(df: pd.DataFrame):
                 df=df[df[TOURNAMENT_COL_NAME].isin(tournaments)],
             )
 
+
 def write_topic_and_question_to_answer(df: pd.DataFrame):
     # write_tsv(target_filename=TSV_FILENAME, target_df=df, dataset_folder=TOPIC_AND_QUESTION_TO_ANSWER_FOLDER_NAME)
+
     split_topic_and_question_to_answer_data(df)
     convert_tsv_test_files_to_json(
         file_prefix=os.path.join(
@@ -134,7 +142,7 @@ if __name__ == "__main__":
     print(f"Tournaments Number: {len(set(df[TOURNAMENT_COL_NAME]))}")
     # split_tournaments(df)
     # write_question_to_answer(df)
-    # write_topic_and_question_to_answer(df)
+    write_topic_and_question_to_answer(df)
 
     # decode_predictions_file_to_json(
     #     source_filepath='../data/question_to_answer/yoga_test.jsonl',
@@ -146,20 +154,18 @@ if __name__ == "__main__":
     #     pred_filepath='../topic_and_question_yoga_test_predictions.txt',
     #     target_filepath='../predictions_decoded.csv'
     # )
-    df = pd.read_csv('../predictions_decoded.csv')
-    sorted_df = df.sort_values(by="predicted_log_probs", ascending=False)
-    sorted_df.to_csv('../predictions_decoded_sorted.csv', index=False)
+    # df = pd.read_csv('../predictions_decoded.csv')
+    # sorted_df = df.sort_values(by="predicted_log_probs", ascending=False)
+    # sorted_df.to_csv('../predictions_decoded_sorted.csv', index=False)
     # sorted_df = pd.read_csv('../predictions_decoded_sorted.csv', index_col=False)
     # print(sorted_df.columns)
     #
-    correct_answers_df = df[df['gold_answer'] == df['predicted_answer']]
-
-    exact_match = len(correct_answers_df)
-
-    print(f'Exact match: {exact_match}/{len(sorted_df)}. Accuracy: {exact_match/len(sorted_df)}.')
-    unique_answers = Counter(df['predicted_answer'])
-    print(unique_answers.most_common())
-    print(correct_answers_df)
-    print(len(unique_answers))
-
-
+    # correct_answers_df = df[df['gold_answer'] == df['predicted_answer']]
+    #
+    # exact_match = len(correct_answers_df)
+    #
+    # print(f'Exact match: {exact_match}/{len(sorted_df)}. Accuracy: {exact_match/len(sorted_df)}.')
+    # unique_answers = Counter(df['predicted_answer'])
+    # print(unique_answers.most_common())
+    # print(correct_answers_df)
+    # print(len(unique_answers))

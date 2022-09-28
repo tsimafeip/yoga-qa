@@ -16,6 +16,7 @@ First, install required packages by this command:
 ### How to train model
 
 `bash allen_train.sh 1 16 0.0001 42 'question_to_answer' configs/mT5.jsonnet`
+`bash allen_train.sh 7 8 0.0001 42 'question_to_answer' configs/mT5_big.jsonnet`
 `bash allen_train.sh 1 16 0.0001 42 'topic_and_question_to_answer' configs/mT5.jsonnet`
 
 ### Repository Structure

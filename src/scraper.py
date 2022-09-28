@@ -22,7 +22,10 @@ def get_soup(page_url: str):
     return soup
 
 
-def collect_page_links(target_filename: str = '../data/page_links.txt', write_links_to_file: bool = True) -> List[str]:
+def collect_page_links(
+        target_filename: str = '../data/page_links.txt',
+        write_links_to_file: bool = True,
+) -> List[str]:
     """
     Collects links to pages with questions or returns them from the existing file.
 
