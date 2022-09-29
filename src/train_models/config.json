@@ -1,0 +1,65 @@
+{
+    "dataset_reader": {
+        "type": "yoga_seq2seq",
+        "source_token_indexers": {
+            "tokens": {
+                "type": "pretrained_transformer",
+                "max_length": 1024,
+                "model_name": "google/mt5-base",
+                "namespace": "source_tokens"
+            }
+        },
+        "target_token_indexers": {
+            "tokens": {
+                "type": "pretrained_transformer",
+                "model_name": "google/mt5-base",
+                "namespace": "target_tokens"
+            }
+        },
+        "tokenizer": {
+            "type": "pretrained_transformer",
+            "model_name": "google/mt5-base"
+        }
+    },
+    "model": {
+        "type": "t5",
+        "beam_search": {
+            "beam_size": 3,
+            "max_steps": 500
+        },
+        "model_name": "google/mt5-base"
+    },
+    "train_data_path": "data/yoga_train.tsv",
+    "validation_data_path": "data/yoga_dev.tsv",
+    "test_data_path": "data/yoga_test.tsv",
+    "trainer": {
+        "callbacks": [
+            {
+                "type": "tensorboard"
+            }
+        ],
+        "cuda_device": 1,
+        "enable_default_callbacks": false,
+        "num_epochs": 100,
+        "num_gradient_accumulation_steps": 8,
+        "optimizer": {
+            "type": "adam",
+            "lr": 0.0001
+        },
+        "patience": 10,
+        "validation_metric": "-loss"
+    },
+    "data_loader": {
+        "batch_sampler": {
+            "type": "bucket",
+            "batch_size": 16,
+            "padding_noise": 0,
+            "sorting_keys": [
+                "source_tokens"
+            ]
+        }
+    },
+    "numpy_seed": 42,
+    "pytorch_seed": 42,
+    "random_seed": 42
+}
