@@ -140,8 +140,8 @@ if __name__ == "__main__":
     print(f"Col Names: {df.columns.values}")
     print(f"Dataset Size: {len(df)}")
     print(f"Tournaments Number: {len(set(df[TOURNAMENT_COL_NAME]))}")
-    # split_tournaments(df)
-    # write_question_to_answer(df)
+    #split_tournaments(df)
+    write_question_to_answer(df)
     write_topic_and_question_to_answer(df)
 
     # decode_predictions_file_to_json(
@@ -154,11 +154,11 @@ if __name__ == "__main__":
     #     pred_filepath='../topic_and_question_yoga_test_predictions.txt',
     #     target_filepath='../predictions_decoded.csv'
     # )
-    # df = pd.read_csv('../predictions_decoded.csv')
+    # df = pd.read_csv('../predictions/question_to_answer/predictions_decoded.csv')
     # sorted_df = df.sort_values(by="predicted_log_probs", ascending=False)
-    # sorted_df.to_csv('../predictions_decoded_sorted.csv', index=False)
-    # sorted_df = pd.read_csv('../predictions_decoded_sorted.csv', index_col=False)
-    # print(sorted_df.columns)
+    # #sorted_df.to_csv('../predictions_decoded_sorted.csv', index=False)
+    # #sorted_df = pd.read_csv('../predictions_decoded_sorted.csv', index_col=False)
+    # #print(sorted_df.columns)
     #
     # correct_answers_df = df[df['gold_answer'] == df['predicted_answer']]
     #

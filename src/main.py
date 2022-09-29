@@ -10,7 +10,7 @@ if __name__ == '__main__':
     local_filepaths = download_data(txt_page_links)
     global_df = pd.DataFrame()
     global_questions = []
-    for path in tqdm(local_filepaths):  # ['sample_file2.txt', 'sample_file.txt']:
+    for i, path in enumerate(tqdm(local_filepaths)):  # ['sample_file2.txt', 'sample_file.txt']:
         # print(f"Started parsing {path}...", flush=True)
         file_questions, file_df = parse_local_txt_page(path)
         global_df = global_df.append(file_df, ignore_index=True)

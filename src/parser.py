@@ -10,11 +10,22 @@ from constants import ROOT_URL
 def extract_question_field(lines: List[str], i: int, question_value: int) -> Tuple[str, int]:
     text = []
     # while non-empty line, denoting end of the last question text, and not the next question
-    stop_prefixes = {f"{val}." for val in range(question_value + 1, 6)}
-    while i < len(lines) and lines[i].strip() and lines[i].strip()[:2] not in stop_prefixes:
+    question_prefix_1 = f"{question_value}."
+    question_prefix_2 = f"{question_value}0."
+    stop_prefixes = set()
+    while i < len(lines) and lines[i].strip():
         cur_line = lines[i].strip()
-        if cur_line[:2] == f"{question_value}.":
+        if cur_line[:2] in stop_prefixes or cur_line[:3] in stop_prefixes:
+            break
+
+        if cur_line.startswith(question_prefix_1):
+            # For example: 2, 3, 4, 5
+            stop_prefixes = {f"{val}." for val in range(question_value + 1, 6)}
             cur_line = cur_line[2:].strip()
+        elif cur_line.startswith(question_prefix_2):
+            # For example: 20, 30, 40, 50
+            stop_prefixes = {f"{val}." for val in range(10 * (question_value + 1), 51, 10)}
+            cur_line = cur_line[3:].strip()
 
         text.append(cur_line)
         i += 1
