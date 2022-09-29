@@ -1,7 +1,6 @@
 https://db.chgk.info/txt/grishov.txt
 https://db.chgk.info/txt/kish97j.txt
 https://db.chgk.info/txt/spbrock.txt
-https://db.chgk.info/txt/masyanya.txt
 https://db.chgk.info/txt/mashina.txt
 https://db.chgk.info/txt/fandor10.txt
 https://db.chgk.info/txt/futb11ek.txt

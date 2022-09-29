@@ -135,7 +135,7 @@ def write_topic_and_question_to_answer(df: pd.DataFrame):
 
 
 if __name__ == "__main__":
-    df = pd.read_csv(os.path.join(DATA_FOLDER_PATH, SOURCE_CSV_FILENAME))
+    df = pd.read_csv(os.path.join('..', '..', DATA_FOLDER_PATH, SOURCE_CSV_FILENAME))
 
     print(f"Col Names: {df.columns.values}")
     print(f"Dataset Size: {len(df)}")
