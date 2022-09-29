@@ -76,7 +76,7 @@ def split_question_to_answer_data(df: pd.DataFrame):
 
 
 def write_question_to_answer(df: pd.DataFrame):
-    write_question_to_answer_tsv(target_filename=TSV_FILENAME, df=df)
+    # write_question_to_answer_tsv(target_filename=TSV_FILENAME, df=df)
     split_question_to_answer_data(df)
     convert_tsv_test_files_to_json(
         file_prefix=os.path.join(
