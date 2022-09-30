@@ -1,5 +1,5 @@
 Connect:
-	ssh -l tprakap -t login.coli.uni-saarland.de ssh tony-1
+	g
 	source /home/CE/tprakap/miniconda3/bin/activate && conda info --envs
 
 	cd /local/tprakap/yoga-qa/src/train_models/
@@ -7,6 +7,15 @@ Connect:
 Local commands
 	source /Users/tsimafeip/pythonProject/pythonProject/venv_37/bin/activate
 
+Prediction
+bash predict.sh ../../private_data/question_to_answer_model.tar data/question_to_answer/yoga_test.jsonl predictions/question_to_answer/full_yoga_test_predictions.txt
+
+
+Upload to gdrive
+	wget https://github.com/prasmussen/gdrive/releases/download/2.1.1/gdrive_2.1.1_linux_386.tar.gz
+	tar -xvf gdrive_2.1.1_linux_386.tar.gz
+	./gdrive about
+	./gdrive upload /local/tprakap/yoga-qa/src/train_models/archive/mt5_0.0001_batch16_accum8_seed424242/model.tar.gz
 
 Screen Commands:
 	List Active Sessions: screen -ls
