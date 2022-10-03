@@ -1,5 +1,5 @@
 Connect:
-	g
+	ssh -l tprakap -t login.coli.uni-saarland.de ssh tony-1
 	source /home/CE/tprakap/miniconda3/bin/activate && conda info --envs
 
 	cd /local/tprakap/yoga-qa/src/train_models/

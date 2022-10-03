@@ -141,31 +141,31 @@ if __name__ == "__main__":
     print(f"Dataset Size: {len(df)}")
     print(f"Tournaments Number: {len(set(df[TOURNAMENT_COL_NAME]))}")
     #split_tournaments(df)
-    write_question_to_answer(df)
-    write_topic_and_question_to_answer(df)
+    # write_question_to_answer(df)
+    # write_topic_and_question_to_answer(df)
 
     # decode_predictions_file_to_json(
     #     source_filepath='../data/question_to_answer/yoga_test.jsonl',
     #     pred_filepath='../full_yoga_test_predictions.txt',
     #     target_filepath='../predictions_decoded.txt'
     # )
-    # decode_predictions_file_to_csv(
-    #     source_filepath='../data/topic_and_question_to_answer_with_sep/yoga_test.jsonl',
-    #     pred_filepath='../topic_and_question_yoga_test_predictions.txt',
-    #     target_filepath='../predictions_decoded.csv'
-    # )
-    # df = pd.read_csv('../predictions/question_to_answer/predictions_decoded.csv')
-    # sorted_df = df.sort_values(by="predicted_log_probs", ascending=False)
-    # #sorted_df.to_csv('../predictions_decoded_sorted.csv', index=False)
+    decode_predictions_file_to_csv(
+        source_filepath='../data/question_to_answer/yoga_test.jsonl',
+        pred_filepath='../predictions/question_to_answer/full_yoga_test_predictions.txt',
+        target_filepath='../predictions/question_to_answer/predictions_decoded.csv'
+    )
+    df = pd.read_csv('../predictions/question_to_answer/predictions_decoded.csv')
+    sorted_df = df.sort_values(by="predicted_log_probs", ascending=False)
+    sorted_df.to_csv('../predictions/question_to_answer/predictions_decoded_sorted.csv', index=False)
     # #sorted_df = pd.read_csv('../predictions_decoded_sorted.csv', index_col=False)
     # #print(sorted_df.columns)
     #
-    # correct_answers_df = df[df['gold_answer'] == df['predicted_answer']]
-    #
-    # exact_match = len(correct_answers_df)
-    #
-    # print(f'Exact match: {exact_match}/{len(sorted_df)}. Accuracy: {exact_match/len(sorted_df)}.')
-    # unique_answers = Counter(df['predicted_answer'])
-    # print(unique_answers.most_common())
-    # print(correct_answers_df)
-    # print(len(unique_answers))
+    correct_answers_df = df[df['gold_answer'] == df['predicted_answer']]
+
+    exact_match = len(correct_answers_df)
+
+    print(f'Exact match: {exact_match}/{len(sorted_df)}. Accuracy: {exact_match/len(sorted_df)}.')
+    unique_answers = Counter(df['predicted_answer'])
+    print(unique_answers.most_common())
+    print(correct_answers_df)
+    print(len(unique_answers))
