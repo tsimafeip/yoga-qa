@@ -5,7 +5,7 @@ from typing import List
 
 import pandas as pd
 
-from src.train_models.src.predictors import decode_predictions_file_to_csv, decode_predictions_file_to_json
+from src.models.code.predictors import decode_predictions_file_to_csv, decode_predictions_file_to_json
 
 TOPIC_COL_NAME: str = 'topic_name'
 QUESTION_TEXT_COL_NAME: str = 'question_text'
