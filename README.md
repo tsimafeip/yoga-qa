@@ -26,7 +26,7 @@ The database of questions and answers for Own Game is freely available at https:
 Dataset was obtained by scraping web pages and parsing them. You can find details in [the intermediate project report](meta/Prakapenka_BERT_seminar_report.pdf).
 
 ### Licence
-The data was scraped from is protected by [the copyright (in Russian)](https://db.chgk.info/copyright), with underlying licences included:
+The data is protected by [the copyright (in Russian)](https://db.chgk.info/copyright), with underlying licences included:
 - [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/)
 - [BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)
 - [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)
