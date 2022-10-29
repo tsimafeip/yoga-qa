@@ -304,6 +304,7 @@ def parse_local_txt_page(filepath: str) -> Tuple[List[YogaQuestion], pd.DataFram
                 df = df.append(topic_df, ignore_index=True)
                 questions.extend(topic_questions)
 
-            i += 1
+            if i < len(lines) and not lines[i].startswith('Вопрос'):
+                i += 1
 
     return questions, df

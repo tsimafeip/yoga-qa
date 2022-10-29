@@ -17,4 +17,4 @@ if __name__ == '__main__':
         global_questions.extend(file_questions)
         # print(f"Finished parsing {path}.", flush=True)
 
-    global_df.to_csv('../data/yoga_questions.csv', index=False)
+    global_df.to_csv('../../data/yoga_questions.csv', index=False)

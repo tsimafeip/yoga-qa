@@ -23,7 +23,7 @@ def get_soup(page_url: str):
 
 
 def collect_page_links(
-        target_filename: str = '../data/page_links.txt',
+        target_filename: str = '../../data/txt_page_links.txt',
         write_links_to_file: bool = True,
 ) -> List[str]:
     """
@@ -68,7 +68,7 @@ def collect_page_links(
 
 def extract_txt_page_links(
         source_links: List[str],
-        target_filename: str = '../data/txt_page_links.txt'
+        target_filename: str = '../../data/txt_page_links.txt'
 ) -> List[str]:
     if os.path.exists(target_filename):
         with open(target_filename) as f:
@@ -89,7 +89,7 @@ def extract_txt_page_links(
     return txt_links
 
 
-def download_data(txt_links: List[str], root_folder: str = '../data/source_files') -> List[str]:
+def download_data(txt_links: List[str], root_folder: str = '../../data/source_files') -> List[str]:
     local_paths = []
     if not os.path.exists(root_folder):
         os.mkdir(root_folder)
@@ -98,7 +98,7 @@ def download_data(txt_links: List[str], root_folder: str = '../data/source_files
 
     for link in tqdm(txt_links):
         page_text = get_soup(link).text
-        local_filepath = os.path.join('..', 'data', 'source_files', link.split('/')[-1])
+        local_filepath = os.path.join('..', '..', 'data', 'source_files', link.split('/')[-1])
         with open(local_filepath, 'w', encoding='utf-8') as f:
             f.write(page_text)
         local_paths.append(local_filepath)
