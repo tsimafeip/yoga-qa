@@ -20,11 +20,11 @@ def extract_question_field(lines: List[str], i: int, question_value: int) -> Tup
 
         if cur_line.startswith(question_prefix_1):
             # For example: 2, 3, 4, 5
-            stop_prefixes = {f"{val}." for val in range(question_value + 1, 6)}
+            stop_prefixes = {f"{val}." for val in range(question_value + 1, 15)}
             cur_line = cur_line[2:].strip()
         elif cur_line.startswith(question_prefix_2):
             # For example: 20, 30, 40, 50
-            stop_prefixes = {f"{val}." for val in range(10 * (question_value + 1), 51, 10)}
+            stop_prefixes = {f"{val}." for val in range(10 * (question_value + 1), 151, 10)}
             cur_line = cur_line[3:].strip()
 
         text.append(cur_line)
@@ -167,32 +167,42 @@ def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, sou
     if topic_name.endswith('.'):
         topic_name = topic_name[:-1]
 
+    i += 1
+
+    # extract texts
+    question_value_to_text = {}
+    question_value = 1
+    while True:
+        question_text, i = extract_question_field(lines, i, question_value)
+        question_value_to_text[question_value] = question_text
+        if not lines[i].strip():
+            break
+        question_value += 1
+
+    questions_in_topic = len(question_value_to_text)
+
     questions_for_df = {
-        'topic_name': [topic_name] * 5,
-        'tournament': [tournament] * 5,
-        'date': [date] * 5,
-        'question_value': list(range(1, 6)),
-        'question_text': [""] * 5,
-        'answer': [""] * 5,
-        'extra_positives': [""] * 5,
-        'hard_negatives': [""] * 5,
-        'comment': [""] * 5,
-        'source': [""] * 5,
-        'author': [""] * 5,
-        'source_url': [source_url] * 5
+        'topic_name': [topic_name] * questions_in_topic,
+        'tournament': [tournament] * questions_in_topic,
+        'date': [date] * questions_in_topic,
+        'question_value': list(range(1, questions_in_topic+1)),
+        'question_text': [""] * questions_in_topic,
+        'answer': [""] * questions_in_topic,
+        'extra_positives': [""] * questions_in_topic,
+        'hard_negatives': [""] * questions_in_topic,
+        'comment': [""] * questions_in_topic,
+        'source': [""] * questions_in_topic,
+        'author': [""] * questions_in_topic,
+        'source_url': [source_url] * questions_in_topic
     }
 
     common_kwargs = {'topic': topic_name, 'tournament': tournament, 'date': date, 'source_url': source_url}
     topic_questions = {
         question_value: YogaQuestion(question_value=question_value, **common_kwargs)
-        for question_value in range(1, 6)
+        for question_value in range(1, questions_in_topic+1)
     }
 
-    i += 1
-
-    # extract texts
-    for question_value in range(1, 6):
-        question_text, i = extract_question_field(lines, i, question_value)
+    for question_value, question_text in question_value_to_text.items():
         set_question_field(field_name='question_text', field_value=question_text, question_value=question_value,
                            topic_questions=topic_questions, df=questions_for_df)
 
@@ -200,7 +210,7 @@ def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, sou
     assert lines[i].strip() == 'Ответ:'
     i += 1
     # extract answers
-    for question_value in range(1, 6):
+    for question_value in range(1, questions_in_topic+1):
         answer, i = extract_question_field(lines, i, question_value)
         answer, extra_positives, hard_negatives, extracted_comment = process_answer(answer)
 
@@ -219,7 +229,7 @@ def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, sou
     if i < len(lines) and lines[i].startswith('Комментарий:'):
         i += 1
         # extract comments
-        for question_value in range(1, 6):
+        for question_value in range(1, questions_in_topic+1):
             comment, i = extract_question_field(lines, i, question_value)
             set_question_field(field_name='comment', field_value=comment, question_value=question_value,
                                topic_questions=topic_questions, df=questions_for_df)
@@ -228,7 +238,7 @@ def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, sou
     if i < len(lines) and lines[i].startswith('Источник:'):
         i += 1
         # extract sources
-        for question_value in range(1, 6):
+        for question_value in range(1, questions_in_topic+1):
             source, i = extract_question_field(lines, i, question_value)
             set_question_field(field_name='source', field_value=source, question_value=question_value,
                                topic_questions=topic_questions, df=questions_for_df)
@@ -256,7 +266,7 @@ def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, sou
             single_author_name = tournament_editor
 
     if single_author:
-        for question_value in range(1, 6):
+        for question_value in range(1, questions_in_topic+1):
             set_question_field(field_name='author', field_value=single_author_name, question_value=question_value,
                                topic_questions=topic_questions, df=questions_for_df)
 
