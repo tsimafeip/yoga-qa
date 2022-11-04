@@ -155,7 +155,15 @@ def parse_single_topic(lines: List[str], i: int, tournament: str, date: str, sou
         -> Tuple[int, Iterable[YogaQuestion], pd.DataFrame]:
     assert lines[i].startswith('Вопрос')
     i += 1
-    topic_name = lines[i].strip()
+    topic_name = []
+    counter = 0
+    while not (lines[i+1].strip().startswith('1.') or lines[i+1].strip().startswith('10.')):
+        topic_name.append(lines[i].strip())
+        i += 1
+        counter += 1
+
+    topic_name.append(lines[i])
+    topic_name = ' '.join(topic_name)
     if topic_name.endswith('.'):
         topic_name = topic_name[:-1]
 
